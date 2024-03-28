@@ -21,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`font-sans ${inter.variable}`}>
+    <html lang="en" className="h-full dark">
+      <body className={`font-sans ${inter.variable} h-full [&>div]:h-full`}>
         <Providers>{children}</Providers>
       </body>
     </html>
