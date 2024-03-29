@@ -1,5 +1,6 @@
 import { getServerAuthSession } from "~/server/auth";
-import CasinoNavbar from "../_components/casino-navbar";
+import CasinoNavbar from "@/components/casino-navbar";
+import AddFundsModal from "@/components/add-funds-modal";
 
 export default async function CasinoLayout({
   children,
@@ -10,6 +11,7 @@ export default async function CasinoLayout({
 
   return (
     <div className="grid h-full [grid-template-rows:auto_1fr_auto]">
+      <AddFundsModal />
       <header>
         <CasinoNavbar user={session?.user} />
       </header>

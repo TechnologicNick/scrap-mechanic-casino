@@ -22,7 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full dark">
-      <body className={`font-sans ${inter.variable} h-full [&>div]:h-full`}>
+      <body
+        className={`font-sans ${inter.variable} h-full [&>div:first-child]:h-full`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>
