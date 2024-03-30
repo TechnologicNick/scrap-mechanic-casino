@@ -14,16 +14,33 @@ import {
   Link,
 } from "@nextui-org/react";
 import CreditsDisplay from "./credits-display";
+import DepositItemsDisplay from "./deposit-items-display";
 
 export const globalAddFundsModal = {
   onOpen: () => {},
 };
 
 export default function AddFundsModal() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure({
+    onClose: () => {
+      setSelectedFile(null);
+      setTotalCredits(0);
+      setSeed(0);
+      if (ref.current) {
+        ref.current.value = "";
+      }
+    },
+  });
   globalAddFundsModal.onOpen = onOpen;
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [totalCredits, setTotalCredits] = useState<number>(0);
+  const [seed, setSeed] = useState<number>(0);
+
+  if (error) {
+    console.log(error);
+  }
 
   const ref = useRef<HTMLInputElement>(null);
 
@@ -31,6 +48,8 @@ export default function AddFundsModal() {
     Array.from(event.target.files!).forEach((file) => setSelectedFile(file));
     event.target.value = "";
   };
+
+  const depositDisabled = !selectedFile || totalCredits === 0 || !!error;
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
@@ -74,12 +93,25 @@ export default function AddFundsModal() {
                   Browse
                 </Button>
               </div>
+              <span className={`text-sm text-primary ${error ? "" : "-mb-3"}`}>
+                {error ?? " "}
+              </span>
+              <DepositItemsDisplay
+                file={selectedFile}
+                setError={setError}
+                setCredits={setTotalCredits}
+                setSeed={setSeed}
+              />
             </ModalBody>
             <ModalFooter>
               <Button color="default" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button color="primary" onPress={onClose}>
+              <Button
+                color="primary"
+                isDisabled={depositDisabled}
+                onPress={onClose}
+              >
                 Deposit
               </Button>
             </ModalFooter>

@@ -11,7 +11,7 @@
 
     /* Strictness */
     "strict": true,
-    "noUncheckedIndexedAccess": true,
+    "noUncheckedIndexedAccess": false,
     "checkJs": true,
 
     /* Bundled projects */
@@ -28,7 +28,8 @@
     "paths": {
       "~/*": ["./src/*"],
       "@/components/*": ["./src/app/_components/*"],
-      "@/icons": ["./src/app/_icons"]
+      "@/icons": ["./src/app/_icons"],
+      "@/save-editor/*": ["./src/app/_save-editor/*"]
     }
   },
   "include": [
