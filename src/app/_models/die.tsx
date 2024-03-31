@@ -6,7 +6,7 @@
  */
 
 import * as THREE from "three";
-import React from "react";
+import React, { RefObject } from "react";
 import { useGLTF } from "@react-three/drei";
 import { GLTF } from "three-stdlib";
 import { applyColor, invertNormalMap } from "./util";
@@ -29,7 +29,11 @@ type ContextType = Record<
   React.ForwardRefExoticComponent<JSX.IntrinsicElements["mesh"]>
 >;
 
-export function Die(props: JSX.IntrinsicElements["group"]) {
+export type DieProps = JSX.IntrinsicElements["group"] & {
+  groupRef?: RefObject<THREE.Group>;
+};
+
+export function Die(props: DieProps) {
   const { nodes, materials } = useGLTF("/models/die.glb") as GLTFResult;
 
   const startTime = new Date().getTime();
@@ -63,7 +67,7 @@ export function Die(props: JSX.IntrinsicElements["group"]) {
   );
 
   return (
-    <group {...props} dispose={null}>
+    <group ref={props.groupRef} {...props} dispose={null}>
       <mesh
         geometry={nodes.edges.geometry}
         material={materials["edges BFDFED"]}
