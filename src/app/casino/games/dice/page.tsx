@@ -1,13 +1,15 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, Plane } from "@react-three/drei";
+import { Physics, RigidBody } from "@react-three/rapier";
 import { Die } from "@/models/die";
+import { Platform } from "@/models/platform";
 
 export default function Page() {
   return (
     <div className="h-full w-full">
-      <Canvas>
+      <Canvas shadows>
         <PerspectiveCamera
           name="camera"
           fov={40}
@@ -17,8 +19,15 @@ export default function Page() {
         />
         <OrbitControls />
         <ambientLight intensity={0.1} />
-        <directionalLight color="white" position={[2, 4, 5]} />
-        <Die />
+        <directionalLight color="white" position={[2, 4, 5]} castShadow />
+        <Physics gravity={[0, -30, 0]}>
+          <RigidBody gravityScale={0} position={[0, -2, 0]}>
+            <Platform />
+          </RigidBody>
+          <RigidBody>
+            <Die />
+          </RigidBody>
+        </Physics>
       </Canvas>
     </div>
   );
