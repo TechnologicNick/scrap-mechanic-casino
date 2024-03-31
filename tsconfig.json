@@ -29,6 +29,7 @@
       "~/*": ["./src/*"],
       "@/components/*": ["./src/app/_components/*"],
       "@/icons": ["./src/app/_icons"],
+      "@/models/*": ["./src/app/_models/*"],
       "@/save-editor/*": ["./src/app/_save-editor/*"]
     }
   },
