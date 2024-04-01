@@ -32,6 +32,7 @@ import CreditsDisplay from "@/components/credits-display";
 import { create } from "zustand";
 import { CONFIG } from "~/config";
 import { api } from "~/trpc/react";
+import { useSession } from "next-auth/react";
 
 type CurrentThrowState = {
   id: null | ReturnType<typeof crypto.randomUUID>;
@@ -261,6 +262,8 @@ const ThrowFinishedCard = () => {
   const win = api.credits.winCredits.useMutation();
   const lastSubmittedResultId = useRef<string | null>(null);
 
+  const { data: session } = useSession();
+
   if (!id || isInProgress) {
     return null;
   }
@@ -276,16 +279,18 @@ const ThrowFinishedCard = () => {
       }
       return credits + (state.hasWon ? state.profitOnWin : -state.bet);
     });
-    win.mutate(
-      {
-        amount: state.hasWon ? state.profitOnWin : -state.bet,
-      },
-      {
-        onSettled: () => {
-          utils.credits.getCredits.invalidate();
+    if (session) {
+      win.mutate(
+        {
+          amount: state.hasWon ? state.profitOnWin : -state.bet,
         },
-      },
-    );
+        {
+          onSettled: () => {
+            utils.credits.getCredits.invalidate();
+          },
+        },
+      );
+    }
   }
 
   return (
