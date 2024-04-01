@@ -36,6 +36,9 @@ const config = {
     };
     return config;
   },
+
+  output: "standalone",
+  compress: false, // Offload gzip compression to nginx
 };
 
 export default config;
