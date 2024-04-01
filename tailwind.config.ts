@@ -20,6 +20,7 @@ export default {
       dark: {
         colors: {
           primary: "#FF0000",
+          danger: "#FF0000",
         },
       },
     },

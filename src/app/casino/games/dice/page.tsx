@@ -15,9 +15,17 @@ import {
 } from "@react-three/rapier";
 import { Die } from "@/models/die";
 import { Platform } from "@/models/platform";
-import { RefObject, useRef } from "react";
-import { Button, Card, CardFooter } from "@nextui-org/react";
+import { RefObject, useRef, useState } from "react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Checkbox,
+  CheckboxGroup,
+} from "@nextui-org/react";
 import { Vector3 } from "three";
+import BetAmount from "@/components/bet-amount";
 
 type FollowCameraControlsProps = CameraControlsProps & {
   followRef: RefObject<RapierRigidBody>;
@@ -91,6 +99,55 @@ const FollowCameraControls = ({
   return <CameraControls {...rest} ref={controls} />;
 };
 
+type GuessCardProps = {
+  roll: () => void;
+};
+
+const GuessCard = ({ roll }: GuessCardProps) => {
+  const [isInvalid, setIsInvalid] = useState(false);
+  const [bet, setBet] = useState<number>(0);
+  const [betValid, setBetValid] = useState(false);
+
+  return (
+    <Card
+      isBlurred
+      radius="lg"
+      shadow="sm"
+      className="border border-primary !bg-black/40"
+    >
+      <CardBody>
+        <CheckboxGroup
+          label="Guess outcomes"
+          defaultValue={["6"]}
+          isInvalid={isInvalid}
+          onValueChange={(value) => {
+            setIsInvalid(value.length === 0 || value.length == 6);
+          }}
+          classNames={{
+            wrapper: "grid grid-cols-2",
+          }}
+          errorMessage={isInvalid && "Please select 1 to 5 outcomes"}
+        >
+          <Checkbox value="1">1</Checkbox>
+          <Checkbox value="2">2</Checkbox>
+          <Checkbox value="3">3</Checkbox>
+          <Checkbox value="4">4</Checkbox>
+          <Checkbox value="5">5</Checkbox>
+          <Checkbox value="6">6</Checkbox>
+        </CheckboxGroup>
+        <BetAmount setBetAmount={setBet} setBetValid={setBetValid} />
+      </CardBody>
+      <CardFooter className="bg-black/40">
+        <div className="flex justify-center">
+          <Button color="primary" onPress={roll} isDisabled={!betValid}>
+            Roll
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+};
+
 export default function Page() {
   const dieRigidBody = useRef<RapierRigidBody>(null);
   const directionalLight = useRef<THREE.DirectionalLight>(null);
@@ -151,15 +208,7 @@ export default function Page() {
         </Physics>
       </Canvas>
       <div className="absolute bottom-2 right-2 top-2 grid items-center">
-        <Card isFooterBlurred radius="lg">
-          <CardFooter>
-            <div className="flex justify-center">
-              <Button color="primary" onPress={roll}>
-                Roll
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
+        <GuessCard roll={roll} />
       </div>
     </div>
   );
