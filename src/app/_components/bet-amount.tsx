@@ -1,6 +1,9 @@
 import { Button, Input } from "@nextui-org/react";
 import { memo, useCallback, useRef, useState } from "react";
 import { WonkCreditsIcon } from "@/icons";
+import { api } from "~/trpc/react";
+import { useSession } from "next-auth/react";
+import { CONFIG } from "~/config";
 
 const validateNumber = (value: string, min: number, max: number) => {
   if (!/^\d+$/.test(value)) {
@@ -51,6 +54,15 @@ export default memo(function BetAmount({
   const [betString, setBetString] = useState<string>(`${defaultBet}`);
   const [error, setError] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
+
+  const { data: session } = useSession();
+
+  const { data: balance } = api.credits.getCredits.useQuery(undefined, {
+    enabled: !!session,
+    initialData: CONFIG.STARTING_CREDITS,
+  });
+
+  max = Math.min(max, balance ?? Infinity);
 
   const setBet = useCallback(
     (value: number | ((oldValue: number) => number)) => {
