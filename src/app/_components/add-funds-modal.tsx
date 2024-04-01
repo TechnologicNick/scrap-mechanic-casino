@@ -133,7 +133,7 @@ export default function AddFundsModal() {
                   onPress={() =>
                     addCredits.mutate({ seed, amount: totalCredits })
                   }
-                  isLoading={addCredits.isPaused}
+                  isLoading={addCredits.isPending}
                 >
                   Deposit
                 </Button>
