@@ -10,6 +10,7 @@ import {
   Button,
   useDisclosure,
   Input,
+  Kbd,
 } from "@nextui-org/react";
 import CreditsDisplay from "./credits-display";
 import DepositItemsDisplay from "./deposit-items-display";
@@ -86,6 +87,14 @@ export default function AddFundsModal() {
                   Wonk Credits
                 </CreditsDisplay>
                 .
+              </p>
+              <p className="text-small">
+                Save files are found in:{" "}
+                <Kbd className="mt-2">
+                  %APPDATA%/Axolot Games/Scrap Mechanic/User/User_
+                  {session?.user.email?.split("@")[0] ?? "<SteamID64>"}
+                  /Save/Survival
+                </Kbd>
               </p>
               <div className="flex gap-2 pt-2">
                 <input
