@@ -23,9 +23,11 @@ import {
   CardFooter,
   Checkbox,
   CheckboxGroup,
+  Divider,
 } from "@nextui-org/react";
 import { Vector3 } from "three";
 import BetAmount from "@/components/bet-amount";
+import CreditsDisplay from "@/components/credits-display";
 
 type FollowCameraControlsProps = CameraControlsProps & {
   followRef: RefObject<RapierRigidBody>;
@@ -99,6 +101,13 @@ const FollowCameraControls = ({
   return <CameraControls {...rest} ref={controls} />;
 };
 
+const getProfitOnWin = (bet: number, sideCount: number) => {
+  const winChance = (1 / 6) * sideCount;
+  const winAmount = bet / winChance;
+  const profit = winAmount - bet;
+  return Math.round(profit);
+};
+
 type GuessCardProps = {
   roll: () => void;
 };
@@ -107,6 +116,9 @@ const GuessCard = ({ roll }: GuessCardProps) => {
   const [isInvalid, setIsInvalid] = useState(false);
   const [bet, setBet] = useState<number>(0);
   const [betValid, setBetValid] = useState(false);
+  const [sides, setSides] = useState<number[]>([6]);
+
+  const profitOnWin = getProfitOnWin(bet, sides.length);
 
   return (
     <Card
@@ -122,6 +134,7 @@ const GuessCard = ({ roll }: GuessCardProps) => {
           isInvalid={isInvalid}
           onValueChange={(value) => {
             setIsInvalid(value.length === 0 || value.length == 6);
+            setSides(value.map((v) => parseInt(v)));
           }}
           classNames={{
             wrapper: "grid grid-cols-2",
@@ -136,6 +149,14 @@ const GuessCard = ({ roll }: GuessCardProps) => {
           <Checkbox value="6">6</Checkbox>
         </CheckboxGroup>
         <BetAmount setBetAmount={setBet} setBetValid={setBetValid} />
+        <Divider className="my-4" />
+        <p className="text-sm">
+          Win chance: {((1 / 6) * sides.length * 100).toFixed(0)}%
+        </p>
+        <p className="mt-2 text-sm">
+          Profit on win:{" "}
+          <CreditsDisplay className="ml-1">{profitOnWin}</CreditsDisplay>
+        </p>
       </CardBody>
       <CardFooter className="bg-black/40">
         <div className="flex justify-center">
