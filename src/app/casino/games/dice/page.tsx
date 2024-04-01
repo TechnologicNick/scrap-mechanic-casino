@@ -28,6 +28,67 @@ import {
 import { Vector3 } from "three";
 import BetAmount from "@/components/bet-amount";
 import CreditsDisplay from "@/components/credits-display";
+import { create } from "zustand";
+import { CONFIG } from "~/config";
+
+type CurrentThrowState = {
+  id: null | ReturnType<typeof crypto.randomUUID>;
+  bet: number;
+  profitOnWin: number;
+  guessedSides: number[];
+  isInProgress: boolean;
+  hasWon: boolean;
+  throwDie: (bet: number, sides: number[]) => void;
+  dieSettled: (side: number) => void;
+  reset: () => void;
+};
+
+const useCurrentTrow = create<CurrentThrowState>((set) => ({
+  id: null,
+  bet: 0,
+  profitOnWin: 0,
+  guessedSides: [],
+  isInProgress: false,
+  hasWon: false,
+  throwDie: (bet: number, sides: number[]) => {
+    set((state) => {
+      if (state.isInProgress) {
+        return {};
+      }
+
+      return {
+        id: crypto.randomUUID(),
+        bet,
+        profitOnWin: getProfitOnWin(bet, sides.length),
+        guessedSides: sides,
+        isInProgress: true,
+        hasWon: false,
+      };
+    });
+  },
+  dieSettled: (side: number) => {
+    set((state) => {
+      if (!state.isInProgress) {
+        return {};
+      }
+
+      return {
+        isInProgress: false,
+        hasWon: state.guessedSides.includes(side),
+      };
+    });
+  },
+  reset: () => {
+    set({
+      id: null,
+      bet: 0,
+      profitOnWin: 0,
+      guessedSides: [],
+      isInProgress: false,
+      hasWon: false,
+    });
+  },
+}));
 
 type FollowCameraControlsProps = CameraControlsProps & {
   followRef: RefObject<RapierRigidBody>;
@@ -114,11 +175,18 @@ type GuessCardProps = {
 
 const GuessCard = ({ roll }: GuessCardProps) => {
   const [isInvalid, setIsInvalid] = useState(false);
-  const [bet, setBet] = useState<number>(0);
-  const [betValid, setBetValid] = useState(false);
+  const [bet, setBet] = useState<number>(CONFIG.DICE.DEFAULT_BET);
+  const [betValid, setBetValid] = useState(true);
   const [sides, setSides] = useState<number[]>([6]);
 
   const profitOnWin = getProfitOnWin(bet, sides.length);
+
+  const isInProgress = useCurrentTrow((state) => state.isInProgress);
+
+  const onRoll = () => {
+    useCurrentTrow.getState().throwDie(bet, sides);
+    roll();
+  };
 
   return (
     <Card
@@ -126,6 +194,7 @@ const GuessCard = ({ roll }: GuessCardProps) => {
       radius="lg"
       shadow="sm"
       className="border border-primary !bg-black/40"
+      isDisabled={isInProgress}
     >
       <CardBody>
         <CheckboxGroup
@@ -148,7 +217,13 @@ const GuessCard = ({ roll }: GuessCardProps) => {
           <Checkbox value="5">5</Checkbox>
           <Checkbox value="6">6</Checkbox>
         </CheckboxGroup>
-        <BetAmount setBetAmount={setBet} setBetValid={setBetValid} />
+        <BetAmount
+          setBetAmount={setBet}
+          setBetValid={setBetValid}
+          min={CONFIG.DICE.MIN_BET}
+          defaultBet={CONFIG.DICE.DEFAULT_BET}
+          max={CONFIG.DICE.MAX_BET}
+        />
         <Divider className="my-4" />
         <p className="text-sm">
           Win chance: {((1 / 6) * sides.length * 100).toFixed(0)}%
@@ -160,13 +235,82 @@ const GuessCard = ({ roll }: GuessCardProps) => {
       </CardBody>
       <CardFooter className="bg-black/40">
         <div className="flex justify-center">
-          <Button color="primary" onPress={roll} isDisabled={!betValid}>
+          <Button
+            color="primary"
+            onPress={onRoll}
+            isDisabled={!betValid || isInProgress}
+          >
             Roll
           </Button>
         </div>
       </CardFooter>
     </Card>
   );
+};
+
+const ThrowFinishedCard = () => {
+  const id = useCurrentTrow((state) => state.id);
+  const isInProgress = useCurrentTrow((state) => state.isInProgress);
+
+  if (!id || isInProgress) {
+    return null;
+  }
+
+  const state = useCurrentTrow.getState();
+
+  return (
+    <Card
+      isBlurred
+      radius="lg"
+      shadow="sm"
+      className="mx-auto border border-primary !bg-black/40"
+    >
+      <CardBody>
+        <p className="px-4 text-center text-xl">
+          {state.hasWon ? (
+            <>
+              You won <CreditsDisplay credits={state.profitOnWin} />!
+            </>
+          ) : (
+            <>
+              You lost your bet of <CreditsDisplay credits={state.bet} />.
+            </>
+          )}
+        </p>
+      </CardBody>
+    </Card>
+  );
+};
+
+const axisToSide = new Map([
+  [new THREE.Vector3(1, 0, 0), 4],
+  [new THREE.Vector3(-1, 0, 0), 3],
+  [new THREE.Vector3(0, 1, 0), 6],
+  [new THREE.Vector3(0, -1, 0), 1],
+  [new THREE.Vector3(0, 0, 1), 2],
+  [new THREE.Vector3(0, 0, -1), 5],
+]);
+
+const getTopSide = (die: THREE.Group) => {
+  if (!die) {
+    console.error("Die not found");
+    return 0;
+  }
+
+  const q = new THREE.Quaternion();
+  const up = new THREE.Vector3(0, 1, 0);
+
+  for (const [axis, side] of axisToSide) {
+    die.getWorldQuaternion(q);
+    const vector = axis.clone().applyQuaternion(q);
+
+    if (vector.dot(up) > 0.7071) {
+      return side;
+    }
+  }
+
+  console.error("Top side not found (impossible)");
+  return 0;
 };
 
 export default function Page() {
@@ -223,13 +367,23 @@ export default function Page() {
           <RigidBody position={[0, -2, 0]} type="fixed">
             <Platform />
           </RigidBody>
-          <RigidBody ref={dieRigidBody} restitution={0.6} friction={0.8}>
+          <RigidBody
+            ref={dieRigidBody}
+            restitution={0.6}
+            friction={0.8}
+            onSleep={() =>
+              useCurrentTrow.getState().dieSettled(getTopSide(die.current!))
+            }
+          >
             <Die groupRef={die} />
           </RigidBody>
         </Physics>
       </Canvas>
-      <div className="absolute bottom-2 right-2 top-2 grid items-center">
+      <div className="pointer-events-none absolute bottom-2 right-2 top-2 grid items-center [&>*]:pointer-events-auto">
         <GuessCard roll={roll} />
+      </div>
+      <div className="pointer-events-none absolute left-2 right-2 top-2 grid items-center [&>*]:pointer-events-auto">
+        <ThrowFinishedCard />
       </div>
     </div>
   );

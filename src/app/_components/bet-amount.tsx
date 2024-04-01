@@ -37,6 +37,7 @@ export type BetAmountProps = {
   setBetValid: (valid: boolean) => void;
   min?: number;
   max?: number;
+  defaultBet?: number;
 };
 
 export default memo(function BetAmount({
@@ -44,9 +45,10 @@ export default memo(function BetAmount({
   setBetValid,
   min = 10,
   max = Infinity,
+  defaultBet,
 }: BetAmountProps) {
-  const [betNumber, setBetNumber] = useState<number>(min);
-  const [betString, setBetString] = useState<string>("");
+  const [betNumber, setBetNumber] = useState<number>(defaultBet ?? min);
+  const [betString, setBetString] = useState<string>(`${defaultBet}`);
   const [error, setError] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
