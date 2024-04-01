@@ -193,7 +193,10 @@ const GuessCard = ({ roll }: GuessCardProps) => {
       isBlurred
       radius="lg"
       shadow="sm"
-      className="border border-primary !bg-black/40"
+      className={
+        "border border-primary !bg-black/40 !transition-opacity" +
+        (isInProgress ? " pointer-events-none max-sm:opacity-0" : "")
+      }
       isDisabled={isInProgress}
     >
       <CardBody>
@@ -343,43 +346,45 @@ export default function Page() {
 
   return (
     <div className="relative h-full w-full">
-      <Canvas shadows>
-        <PerspectiveCamera
-          name="camera"
-          fov={40}
-          near={10}
-          far={1000}
-          position={[10, 0, 50]}
-        />
-        <ambientLight intensity={0.1} />
-        <directionalLight
-          color="white"
-          position={[2, 4, 5]}
-          castShadow
-          ref={directionalLight}
-        />
-        <Physics gravity={[0, -30, 0]} timeStep={"vary"}>
-          <FollowCameraControls
-            followRef={dieRigidBody}
-            dieRef={die}
-            maxDistance={10}
+      <div className="absolute inset-0">
+        <Canvas shadows>
+          <PerspectiveCamera
+            name="camera"
+            fov={40}
+            near={10}
+            far={1000}
+            position={[10, 0, 50]}
           />
-          <RigidBody position={[0, -2, 0]} type="fixed">
-            <Platform />
-          </RigidBody>
-          <RigidBody
-            ref={dieRigidBody}
-            restitution={0.6}
-            friction={0.8}
-            onSleep={() =>
-              useCurrentTrow.getState().dieSettled(getTopSide(die.current!))
-            }
-          >
-            <Die groupRef={die} />
-          </RigidBody>
-        </Physics>
-      </Canvas>
-      <div className="pointer-events-none absolute bottom-2 right-2 top-2 grid items-center [&>*]:pointer-events-auto">
+          <ambientLight intensity={0.1} />
+          <directionalLight
+            color="white"
+            position={[2, 4, 5]}
+            castShadow
+            ref={directionalLight}
+          />
+          <Physics gravity={[0, -30, 0]} timeStep={"vary"}>
+            <FollowCameraControls
+              followRef={dieRigidBody}
+              dieRef={die}
+              maxDistance={10}
+            />
+            <RigidBody position={[0, -2, 0]} type="fixed">
+              <Platform />
+            </RigidBody>
+            <RigidBody
+              ref={dieRigidBody}
+              restitution={0.6}
+              friction={0.8}
+              onSleep={() =>
+                useCurrentTrow.getState().dieSettled(getTopSide(die.current!))
+              }
+            >
+              <Die groupRef={die} />
+            </RigidBody>
+          </Physics>
+        </Canvas>
+      </div>
+      <div className="pointer-events-none absolute bottom-2 right-2 top-2 grid items-center max-[375px]:left-2 [&>*]:pointer-events-auto">
         <GuessCard roll={roll} />
       </div>
       <div className="pointer-events-none absolute left-2 right-2 top-2 grid items-center [&>*]:pointer-events-auto">
