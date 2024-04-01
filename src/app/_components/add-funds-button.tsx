@@ -46,7 +46,7 @@ export const PersonalAddFundsButton = ({
     );
   }
 
-  if (data) {
+  if (data != undefined) {
     return <AddFundsButton credits={data} />;
   }
 
