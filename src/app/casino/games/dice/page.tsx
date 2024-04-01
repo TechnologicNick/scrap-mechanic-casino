@@ -33,6 +33,7 @@ import { create } from "zustand";
 import { CONFIG } from "~/config";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
+import { PersonalAddFundsButton } from "~/app/_components/add-funds-button";
 
 type CurrentThrowState = {
   id: null | ReturnType<typeof crypto.randomUUID>;
@@ -239,16 +240,15 @@ const GuessCard = ({ roll }: GuessCardProps) => {
           <CreditsDisplay className="ml-1">{profitOnWin}</CreditsDisplay>
         </p>
       </CardBody>
-      <CardFooter className="bg-black/40">
-        <div className="flex justify-center">
-          <Button
-            color="primary"
-            onPress={onRoll}
-            isDisabled={!betValid || isInProgress}
-          >
-            Roll
-          </Button>
-        </div>
+      <CardFooter className="flex flex-row items-center justify-between gap-2 bg-black/40">
+        <Button
+          color="primary"
+          onPress={onRoll}
+          isDisabled={!betValid || isInProgress}
+        >
+          Roll
+        </Button>
+        <PersonalAddFundsButton />
       </CardFooter>
     </Card>
   );
