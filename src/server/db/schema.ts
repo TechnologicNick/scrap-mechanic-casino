@@ -19,6 +19,23 @@ export const createTable = sqliteTableCreator(
   (name) => `scrap-mechanic-casino_${name}`,
 );
 
+export const deposits = createTable(
+  "deposit",
+  {
+    seed: int("seed", { mode: "number" })
+      .notNull()
+      .primaryKey({ autoIncrement: false }),
+    depositedById: text("userId", { length: 255 }).notNull(),
+    amount: int("amount", { mode: "number" }).notNull(),
+    createdAt: int("createdAt", { mode: "timestamp" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (deposit) => ({
+    depositedByIdIdx: index("depositedById_idx").on(deposit.depositedById),
+  }),
+);
+
 export const posts = createTable(
   "post",
   {

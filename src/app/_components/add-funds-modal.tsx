@@ -14,13 +14,14 @@ import {
 import CreditsDisplay from "./credits-display";
 import DepositItemsDisplay from "./deposit-items-display";
 import { signIn, useSession } from "next-auth/react";
+import { api } from "~/trpc/react";
 
 export const globalAddFundsModal = {
   onOpen: () => {},
 };
 
 export default function AddFundsModal() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure({
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure({
     onClose: () => {
       setSelectedFile(null);
       setTotalCredits(0);
@@ -37,6 +38,11 @@ export default function AddFundsModal() {
   const [totalCredits, setTotalCredits] = useState<number>(0);
   const [seed, setSeed] = useState<number>(0);
   const { data: session } = useSession();
+
+  const addCredits = api.credits.addCredits.useMutation({
+    onSuccess: () => onClose(),
+    onError: (error) => setError(error.message),
+  });
 
   if (error) {
     console.log(error);
@@ -111,7 +117,10 @@ export default function AddFundsModal() {
                 <Button
                   color="primary"
                   isDisabled={depositDisabled}
-                  onPress={onClose}
+                  onPress={() =>
+                    addCredits.mutate({ seed, amount: totalCredits })
+                  }
+                  isLoading={addCredits.isPaused}
                 >
                   Deposit
                 </Button>
