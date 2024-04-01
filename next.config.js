@@ -6,6 +6,27 @@ await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
 const config = {
+  redirects: async () => {
+    const destination = "/casino/games/dice";
+    return [
+      {
+        source: "/",
+        destination,
+        permanent: true,
+      },
+      {
+        source: "/casino",
+        destination,
+        permanent: true,
+      },
+      {
+        source: "/casino/games",
+        destination,
+        permanent: true,
+      },
+    ];
+  },
+
   webpack: (config) => {
     config.resolve = {
       ...config.resolve,
