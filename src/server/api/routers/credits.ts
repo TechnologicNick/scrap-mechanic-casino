@@ -7,9 +7,6 @@ import { deposits, users } from "~/server/db/schema";
 
 export const creditsRouter = createTRPCRouter({
   getCredits: protectedProcedure.query(async ({ ctx }) => {
-    // simulate a slow db call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const user = await ctx.db.query.users.findFirst({
       where: (user, { eq }) => eq(user.id, ctx.session.user.id),
     });
@@ -29,9 +26,6 @@ export const creditsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       try {
         await db.transaction(async (tx) => {
           await tx.insert(deposits).values({
@@ -61,9 +55,6 @@ export const creditsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const res = await ctx.db
         .update(users)
         .set({ credits: sql`${users.credits} + ${input.amount}` })
