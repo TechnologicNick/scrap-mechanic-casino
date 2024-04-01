@@ -35,7 +35,7 @@ export const PersonalAddFundsButton = ({
 }: PersonalAddFundsButtonProps) => {
   const { data, isLoading } = api.credits.getCredits.useQuery(undefined, {
     enabled: !!user,
-    initialData: CONFIG.STARTING_CREDITS,
+    initialData: !user ? CONFIG.STARTING_CREDITS : undefined,
   });
 
   if (isLoading) {
