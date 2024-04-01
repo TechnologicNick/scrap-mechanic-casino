@@ -9,12 +9,11 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
-  Checkbox,
   Input,
-  Link,
 } from "@nextui-org/react";
 import CreditsDisplay from "./credits-display";
 import DepositItemsDisplay from "./deposit-items-display";
+import { signIn, useSession } from "next-auth/react";
 
 export const globalAddFundsModal = {
   onOpen: () => {},
@@ -37,6 +36,7 @@ export default function AddFundsModal() {
   const [error, setError] = useState<string | null>(null);
   const [totalCredits, setTotalCredits] = useState<number>(0);
   const [seed, setSeed] = useState<number>(0);
+  const { data: session } = useSession();
 
   if (error) {
     console.log(error);
@@ -107,13 +107,23 @@ export default function AddFundsModal() {
               <Button color="default" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button
-                color="primary"
-                isDisabled={depositDisabled}
-                onPress={onClose}
-              >
-                Deposit
-              </Button>
+              {session ? (
+                <Button
+                  color="primary"
+                  isDisabled={depositDisabled}
+                  onPress={onClose}
+                >
+                  Deposit
+                </Button>
+              ) : (
+                <Button
+                  color="primary"
+                  variant="shadow"
+                  onPress={() => signIn("steam")}
+                >
+                  Login with Steam
+                </Button>
+              )}
             </ModalFooter>
           </>
         )}

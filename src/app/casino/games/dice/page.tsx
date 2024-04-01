@@ -24,12 +24,14 @@ import {
   Checkbox,
   CheckboxGroup,
   Divider,
+  Spinner,
 } from "@nextui-org/react";
 import { Vector3 } from "three";
 import BetAmount from "@/components/bet-amount";
 import CreditsDisplay from "@/components/credits-display";
 import { create } from "zustand";
 import { CONFIG } from "~/config";
+import { api } from "~/trpc/react";
 
 type CurrentThrowState = {
   id: null | ReturnType<typeof crypto.randomUUID>;
@@ -255,11 +257,21 @@ const ThrowFinishedCard = () => {
   const id = useCurrentTrow((state) => state.id);
   const isInProgress = useCurrentTrow((state) => state.isInProgress);
 
+  const win = api.credits.winCredits.useMutation();
+  const lastSubmittedResultId = useRef<string | null>(null);
+
   if (!id || isInProgress) {
     return null;
   }
 
   const state = useCurrentTrow.getState();
+
+  if (lastSubmittedResultId.current !== id) {
+    lastSubmittedResultId.current = id;
+    win.mutate({
+      amount: state.hasWon ? state.profitOnWin : -state.bet,
+    });
+  }
 
   return (
     <Card
@@ -268,8 +280,8 @@ const ThrowFinishedCard = () => {
       shadow="sm"
       className="mx-auto border border-primary !bg-black/40"
     >
-      <CardBody>
-        <p className="px-4 text-center text-xl">
+      <CardBody className="flex justify-center gap-2">
+        <span className="px-4 text-center text-xl">
           {state.hasWon ? (
             <>
               You won <CreditsDisplay credits={state.profitOnWin} />!
@@ -279,7 +291,15 @@ const ThrowFinishedCard = () => {
               You lost your bet of <CreditsDisplay credits={state.bet} />.
             </>
           )}
-        </p>
+        </span>
+        {win.isPending && (
+          <div className="flex flex-row items-center justify-center gap-2">
+            Submitting... <Spinner size="md" />
+          </div>
+        )}
+        {win.isError && (
+          <span className="text-primary">{win.error.message}</span>
+        )}
       </CardBody>
     </Card>
   );

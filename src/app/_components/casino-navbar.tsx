@@ -11,7 +11,8 @@ import {
 } from "@nextui-org/react";
 import { Session } from "next-auth";
 import { usePathname } from "next/navigation";
-import AddFundsButton from "./add-funds-button";
+import { PersonalAddFundsButton } from "./add-funds-button";
+import { signIn } from "next-auth/react";
 
 export const topLevelLinks = [
   { title: "Dice", href: "/casino/games/dice" },
@@ -45,13 +46,17 @@ export default function CasinoNavbar({ user }: CasinoNavbarProps) {
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>
-          <AddFundsButton credits={1000} />
+          <PersonalAddFundsButton user={user} />
         </NavbarItem>
         <NavbarItem>
           {user ? (
             <Avatar isBordered color="primary" radius="sm" src={user.image!} />
           ) : (
-            <Button as={Link} color="primary" href="#" variant="shadow">
+            <Button
+              color="primary"
+              variant="shadow"
+              onPress={() => signIn("steam")}
+            >
               Login with Steam
             </Button>
           )}
