@@ -257,6 +257,7 @@ const ThrowFinishedCard = () => {
   const id = useCurrentTrow((state) => state.id);
   const isInProgress = useCurrentTrow((state) => state.isInProgress);
 
+  const utils = api.useUtils();
   const win = api.credits.winCredits.useMutation();
   const lastSubmittedResultId = useRef<string | null>(null);
 
@@ -268,9 +269,23 @@ const ThrowFinishedCard = () => {
 
   if (lastSubmittedResultId.current !== id) {
     lastSubmittedResultId.current = id;
-    win.mutate({
-      amount: state.hasWon ? state.profitOnWin : -state.bet,
+    utils.credits.getCredits.cancel();
+    utils.credits.getCredits.setData(undefined, (credits) => {
+      if (credits === undefined) {
+        return;
+      }
+      return credits + (state.hasWon ? state.profitOnWin : -state.bet);
     });
+    win.mutate(
+      {
+        amount: state.hasWon ? state.profitOnWin : -state.bet,
+      },
+      {
+        onSettled: () => {
+          utils.credits.getCredits.invalidate();
+        },
+      },
+    );
   }
 
   return (

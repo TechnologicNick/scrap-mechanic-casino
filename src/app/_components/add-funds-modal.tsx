@@ -39,9 +39,22 @@ export default function AddFundsModal() {
   const [seed, setSeed] = useState<number>(0);
   const { data: session } = useSession();
 
+  const utils = api.useUtils();
   const addCredits = api.credits.addCredits.useMutation({
-    onSuccess: () => onClose(),
+    onMutate: () => {
+      utils.credits.getCredits.cancel();
+      utils.credits.getCredits.setData(undefined, (credits) => {
+        if (credits === undefined) {
+          return;
+        }
+        return credits + totalCredits;
+      });
+    },
+    onSuccess: () => {
+      onClose();
+    },
     onError: (error) => setError(error.message),
+    onSettled: () => utils.credits.getCredits.invalidate(),
   });
 
   if (error) {
