@@ -1,29 +1,25 @@
-# Create T3 App
+https://github.com/TechnologicNick/scrap-mechanic-casino/assets/20935774/a6dad24c-af81-4d02-8779-38057c8b4bdf
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+# Scrap Mechanic Casino
 
-## What's next? How do I make an app with this?
+This is a website where you can gamble your in-game resources away I made for April Fools 2024. It was accessible on playable on https://scrapmechanic.net/casino, and I worked on it for 5 days.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+The save file is read in the browser. The die and ground models are game assets converted to a model using [SM-Converter](https://github.com/QuestionableM/SM-Converter).
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## How to play
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+1. Log in with Steam
+2. Select a save file to deposit in-game resources for Wonk Credits.
+3. Gamble
 
-## Learn More
+## Technologies
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
-
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- React Framework: [Next.js](https://nextjs.org)
+- Rendering: [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
+- Physics: [Rapier](https://pmndrs.github.io/react-three-rapier/)
+- Component Library: [NextUI](https://nextui.org/)
+- In-Browser SQLite Engine: [sql.js](https://sql.js.org/)
+- Auth: [NextAuth.js](https://next-auth.js.org)
+- ORM: [Drizzle](https://orm.drizzle.team)
+- Styling: [Tailwind CSS](https://tailwindcss.com)
+- Typesafe APIs: [tRPC](https://trpc.io)
