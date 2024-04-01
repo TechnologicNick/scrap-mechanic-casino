@@ -1,11 +1,16 @@
 import { Button, Input } from "@nextui-org/react";
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { WonkCreditsIcon } from "@/icons";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
 import { CONFIG } from "~/config";
 
-const validateNumber = (value: string, min: number, max: number) => {
+const validateNumber = (
+  value: string,
+  min: number,
+  max: number,
+  balance: number,
+) => {
   if (!/^\d+$/.test(value)) {
     return { valid: false as const, error: "Invalid number" };
   }
@@ -20,12 +25,16 @@ const validateNumber = (value: string, min: number, max: number) => {
     return { valid: false as const, error: "Bet must be finite" };
   }
 
-  if (bet > max) {
-    return { valid: false as const, error: `Bet must be at most ${max}` };
-  }
-
   if (bet < min) {
     return { valid: false as const, error: `Bet must be at least ${min}` };
+  }
+
+  if (bet > balance) {
+    return { valid: false as const, error: "You don't have enough credits!" };
+  }
+
+  if (bet > max) {
+    return { valid: false as const, error: `Bet must be at most ${max}` };
   }
 
   return { valid: true as const, value: bet };
@@ -72,16 +81,18 @@ export default memo(function BetAmount({
       value = clampAndRound(value, min, max);
       setBetNumber(value);
       setBetString(value.toString());
-      setError(null);
       setBetAmount(value);
-      setBetValid(true);
     },
     [betNumber, min, max],
   );
 
   const handleInput = useCallback(
     (value: string, replaceBetString = false) => {
-      const { valid, error, value: bet } = validateNumber(value, min, max);
+      const {
+        valid,
+        error,
+        value: bet,
+      } = validateNumber(value, min, max, balance);
 
       setBetValid(valid);
       if (valid) {
@@ -98,8 +109,12 @@ export default memo(function BetAmount({
         setBetString(value);
       }
     },
-    [betNumber, min, max],
+    [betNumber, min, max, balance],
   );
+
+  useEffect(() => {
+    handleInput(betString, true);
+  }, [balance, betString]);
 
   return (
     <div className="flex flex-col gap-2 pt-2">
