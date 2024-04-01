@@ -119,7 +119,6 @@ const FollowCameraControls = ({
     const position = followRef.current.translation();
     const offset = new Vector3(0, 0, 0);
 
-    let updated = false;
     const repeat = 4;
     if (position.x > repeat) {
       offset.x -= repeat;
@@ -135,6 +134,10 @@ const FollowCameraControls = ({
 
     if (position.z < -repeat) {
       offset.z += repeat;
+    }
+
+    if (position.y < -10) {
+      offset.y = 10;
     }
 
     if (offset.lengthSq() > 0) {
