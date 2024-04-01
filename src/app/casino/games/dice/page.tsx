@@ -36,7 +36,7 @@ import { useSession } from "next-auth/react";
 import { PersonalAddFundsButton } from "~/app/_components/add-funds-button";
 
 type CurrentThrowState = {
-  id: null | ReturnType<typeof crypto.randomUUID>;
+  id: null | number;
   bet: number;
   profitOnWin: number;
   guessedSides: number[];
@@ -61,7 +61,7 @@ const useCurrentTrow = create<CurrentThrowState>((set) => ({
       }
 
       return {
-        id: crypto.randomUUID(),
+        id: Math.random(),
         bet,
         profitOnWin: getProfitOnWin(bet, sides.length),
         guessedSides: sides,
@@ -260,7 +260,7 @@ const ThrowFinishedCard = () => {
 
   const utils = api.useUtils();
   const win = api.credits.winCredits.useMutation();
-  const lastSubmittedResultId = useRef<string | null>(null);
+  const lastSubmittedResultId = useRef<number | null>(null);
 
   const { data: session } = useSession();
 

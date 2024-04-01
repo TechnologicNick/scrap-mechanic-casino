@@ -120,7 +120,6 @@ export default memo(function DepositItemsDisplay({
 
       try {
         const gameMode = saveEditor.getGameMode();
-        console.log(gameMode);
         if (![GameMode.Survival, GameMode.Custom].includes(gameMode)) {
           setError?.("Only Survival mode and Custom Games can be deposited!");
           return;
@@ -136,7 +135,6 @@ export default memo(function DepositItemsDisplay({
       let containers: Container[];
       try {
         containers = saveEditor.getAllContainers();
-        console.log(containers);
       } catch (error) {
         console.error(error);
         setError?.(
