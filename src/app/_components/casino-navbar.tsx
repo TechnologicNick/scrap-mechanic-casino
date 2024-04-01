@@ -15,10 +15,10 @@ import { PersonalAddFundsButton } from "./add-funds-button";
 import { signIn } from "next-auth/react";
 
 export const topLevelLinks = [
-  { title: "Dice", href: "/casino/games/dice" },
-  { title: "Roulette", href: "/casino/games/roulette" },
-  { title: "Coinflip", href: "/casino/games/coinflip" },
-] as const satisfies Array<{ title: string; href: string }>;
+  { title: "Dice", href: "/casino/games/dice", visitable: true },
+  { title: "Roulette", href: "/casino/games/roulette", visitable: false },
+  { title: "Coinflip", href: "/casino/games/coinflip", visitable: false },
+] as const satisfies Array<{ title: string; href: string; visitable: boolean }>;
 
 export type CasinoNavbarProps = {
   user?: Session["user"];
@@ -36,8 +36,9 @@ export default function CasinoNavbar({ user }: CasinoNavbarProps) {
         {topLevelLinks.map((link) => (
           <NavbarItem key={link.href} isActive={pathname === link.href}>
             <Link
-              href={link.href}
+              href={link.visitable ? link.href : undefined}
               color={pathname === link.href ? "primary" : "foreground"}
+              className="cursor-pointer"
             >
               {link.title}
             </Link>
